@@ -75,7 +75,7 @@ export default async function HistoryPage() {
 
           
         {!error && (data?.length ?? 0) === 0 && (
-          <p className="text-sm opacity-70">Hələ history yoxdur.</p>
+          <p className="text-sm opacity-70">No history yet.</p>
         )}
       </div>
     </div>
