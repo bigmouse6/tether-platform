@@ -1,4 +1,4 @@
-import Sidebar from "./_components/Sidebar";
+import DashboardShell from "./_components/DashboardShell";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -21,7 +21,7 @@ export default async function DashboardLayout({
   let isAdmin = false;
 
   if (user?.id) {
-    // vip_level DB-dən qalsın (VIP üçün lazımdır)
+    // Keep vip_level in the database (required for VIP logic)
     const { data: profile } = await supabase
       .from("profiles")
       .select("vip_level")
@@ -30,16 +30,17 @@ export default async function DashboardLayout({
 
     vipLevel = Number(profile?.vip_level ?? 0);
 
-    // ✅ Admin yoxlaması EMAIL ilə
+    // Admin check by email
     isAdmin = !!userEmail && userEmail.toLowerCase() === adminEmail;
   }
 
   return (
-    <div className="flex">
-      <Sidebar isAdmin={isAdmin} userEmail={userEmail} vipLevel={vipLevel} />
-      <main className="flex-1">{children}</main>
-    </div>
+    <DashboardShell
+      isAdmin={isAdmin}
+      userEmail={userEmail}
+      vipLevel={vipLevel}
+    >
+      {children}
+    </DashboardShell>
   );
 }
-
-
