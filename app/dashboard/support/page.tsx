@@ -6,7 +6,7 @@ export default async function SupportPage() {
 
   const { data: messages } = await supabase
     .from("support_messages")
-    .select("id, created_at, message, status")
+    .select("id, created_at, message, status, admin_reply, admin_replied_at")
     .order("id", { ascending: false })
     .limit(30);
 
@@ -29,6 +29,20 @@ export default async function SupportPage() {
                 {new Date(m.created_at).toLocaleString()} · {m.status}
               </div>
               <div className="mt-2 text-sm text-white">{m.message}</div>
+              {m.admin_reply && (
+      <div className="mt-3 rounded-xl border border-white/10 bg-white/5 p-3">
+      <div className="text-xs text-white/50">
+      Admin reply
+      {m.admin_replied_at
+        ? ` · ${new Date(m.admin_replied_at).toLocaleString()}`
+        : ""}
+    </div>
+
+    <div className="mt-2 text-sm text-white">
+      {m.admin_reply}
+    </div>
+  </div>
+)}
             </div>
           ))}
           {!messages?.length && (
