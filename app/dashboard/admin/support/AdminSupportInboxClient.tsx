@@ -9,11 +9,15 @@ type Msg = {
   user_email: string | null;
   message: string;
   status: string | null;
-  admin_reply?: string | null;
-  admin_replied_at?: string | null;
+  admin_reply: string | null;
+  admin_replied_at: string | null;
 };
 
-export default function AdminSupportInboxClient({ initialMessages }: { initialMessages: Msg[] }) {
+export default function AdminSupportInboxClient({
+  initialMessages,
+}: {
+  initialMessages: Msg[];
+}) {
   const supabase = useMemo(() => createClient(), []);
   const [q, setQ] = useState("");
   const [messages, setMessages] = useState<Msg[]>(initialMessages);
@@ -33,7 +37,8 @@ export default function AdminSupportInboxClient({ initialMessages }: { initialMe
       .order("id", { ascending: false })
       .limit(200);
 
-    if (!error) setMessages((data as Msg[]) ?? []);
+    if (!error && data) setMessages(data as Msg[]);
+    if (error) alert(error.message);
   }
 
   async function sendReply(id: number) {
@@ -41,26 +46,25 @@ export default function AdminSupportInboxClient({ initialMessages }: { initialMe
     if (!text) return;
 
     setSavingId(id);
-    try {
-      const { error } = await supabase
-        .from("support_messages")
-        .update({
-          admin_reply: text,
-          admin_replied_at: new Date().toISOString(),
-          status: "answered",
-        })
-        .eq("id", id);
 
-      if (error) {
-        alert(error.message);
-        return;
-      }
+    const { error } = await supabase
+      .from("support_messages")
+      .update({
+        admin_reply: text,
+        admin_replied_at: new Date().toISOString(),
+        status: "answered",
+      })
+      .eq("id", id);
 
-      setReplyById((p) => ({ ...p, [id]: "" }));
-      await refresh();
-    } finally {
+    if (error) {
+      alert(error.message);
       setSavingId(null);
+      return;
     }
+
+    setReplyById((p) => ({ ...p, [id]: "" }));
+    await refresh();
+    setSavingId(null);
   }
 
   return (
@@ -74,7 +78,7 @@ export default function AdminSupportInboxClient({ initialMessages }: { initialMe
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Search by email…"
+          placeholder="Search by email..."
           className="w-full sm:w-80 rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-sm text-white placeholder:text-white/40"
         />
       </div>
@@ -83,16 +87,16 @@ export default function AdminSupportInboxClient({ initialMessages }: { initialMe
         {filtered.map((m) => (
           <div key={m.id} className="rounded-2xl border border-white/10 bg-white/5 p-5">
             <div className="text-xs text-white/50">
-              {new Date(m.created_at).toLocaleString()} · {m.status ?? "open"}
+              {new Date(m.created_at).toLocaleString()} • {m.status ?? "open"}
             </div>
 
-            <div className="mt-2 text-sm text-white/70">{m.user_email ?? "unknown"}</div>
+            <div className="mt-1 text-sm text-white/70">{m.user_email ?? "unknown"}</div>
             <div className="mt-3 text-sm text-white">{m.message}</div>
 
             {m.admin_reply ? (
               <div className="mt-4 rounded-xl border border-white/10 bg-white/5 p-3">
                 <div className="text-xs text-white/50">
-                  Admin reply {m.admin_replied_at ? `· ${new Date(m.admin_replied_at).toLocaleString()}` : ""}
+                  Admin reply{m.admin_replied_at ? ` • ${new Date(m.admin_replied_at).toLocaleString()}` : ""}
                 </div>
                 <div className="mt-2 text-sm text-white">{m.admin_reply}</div>
               </div>
@@ -102,7 +106,7 @@ export default function AdminSupportInboxClient({ initialMessages }: { initialMe
                   value={replyById[m.id] ?? ""}
                   onChange={(e) => setReplyById((p) => ({ ...p, [m.id]: e.target.value }))}
                   rows={3}
-                  placeholder="Write a reply…"
+                  placeholder="Write a reply..."
                   className="w-full rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-sm text-white placeholder:text-white/40"
                 />
                 <button
@@ -110,14 +114,16 @@ export default function AdminSupportInboxClient({ initialMessages }: { initialMe
                   disabled={savingId === m.id}
                   className="rounded-xl bg-cyan-500 px-4 py-2 text-sm font-semibold text-black disabled:opacity-60"
                 >
-                  {savingId === m.id ? "Sending…" : "Send reply"}
+                  {savingId === m.id ? "Sending..." : "Send reply"}
                 </button>
               </div>
             )}
           </div>
         ))}
 
-        {!filtered.length && <div className="text-sm text-white/50">No messages found.</div>}
+        {!filtered.length && (
+          <div className="text-sm text-white/50">No messages found.</div>
+        )}
       </div>
     </div>
   );
