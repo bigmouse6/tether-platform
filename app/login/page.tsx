@@ -30,7 +30,7 @@ export default function LoginPage() {
       return;
     }
 
-    // dashboard-u sonra edəcəyik, hələlik home-a göndərək
+    
     router.push("/dashboard");
     router.refresh();
   }

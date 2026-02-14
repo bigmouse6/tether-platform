@@ -12,11 +12,11 @@ function normalizeVip(vipLevel?: string | null) {
   const v = String(vipLevel ?? "").trim().toUpperCase();
   if (!v) return { tier: 0, label: "Standard" };
 
-  // Accepts: "VIP-1", "VIP 1", "VIP1"
+  
   const m = v.match(/VIP[\s-]?(\d+)/);
   if (m?.[1]) return { tier: Number(m[1]), label: `VIP ${m[1]}` };
 
-  // fallback
+  
   return { tier: 0, label: "Standard" };
 }
 
@@ -24,7 +24,7 @@ export default function VipPromoCard({ vipLevel }: Props) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    // session boyunca 1 dəfə göstər
+  
     const dismissed = sessionStorage.getItem("vip_promo_dismissed");
     if (!dismissed) setOpen(true);
   }, []);
