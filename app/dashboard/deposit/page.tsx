@@ -24,6 +24,23 @@ export default function DepositPage() {
   </div>
 </div>
 
+  {/* Exchange Notice */}
+<div className="mb-6 rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 text-sm">
+  <p className="font-medium text-amber-400 mb-1">
+    Exchange Compatibility Notice
+  </p>
+
+  <p className="text-muted-foreground">
+    Due to recent regulatory updates, some exchanges such as Binance
+    may apply stricter transfer and address verification rules for
+    new users, which can cause delays or failed transactions.
+    <br /><br />
+    For a smoother deposit experience, we recommend using
+    Bybit, OKX, Bitget, or other widely supported exchanges
+    available in your region.
+  </p>
+</div>
+
 
       <DepositForm address={address} />
     </div>
