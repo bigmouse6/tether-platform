@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import AdminSupportInboxClient from "./AdminSupportInboxClient";
 
+
+
 export default async function AdminSupportInbox() {
   const supabase = await createClient();
 
