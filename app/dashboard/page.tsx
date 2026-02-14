@@ -117,6 +117,17 @@ export default async function DashboardPage() {
       <h1 className="text-3xl font-semibold">Overview</h1>
       <p className="text-white/60 mt-2">Welcome to Tronix platform.</p>
 
+    <div className="mb-6 rounded-lg bg-blue-500/10 border border-blue-500/20 p-4 text-sm">
+  <p className="text-blue-400 font-medium">
+    Platform Notice
+  </p>
+  <p className="text-muted-foreground">
+    Some exchanges may enforce stricter transfer regulations for new users.
+    Using Bybit, OKX or Bitget may provide a smoother transaction experience.
+  </p>
+</div>
+
+
       {/* VIP promo modal/card */}
       <VipPromoCard vipLevel={vipLevel} />
 
