@@ -32,7 +32,7 @@ export async function submitWithdraw(input: {
 
   if (error) return { ok: false, message: error.message };
 
-  // data = yeni balans (numeric)
+  
   return { ok: true, message: "Withdraw request submitted ✅", newBalance: data };
 }
 

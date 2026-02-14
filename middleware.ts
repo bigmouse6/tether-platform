@@ -25,7 +25,7 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   const pathname = request.nextUrl.pathname;
 
-  // dashboard-a giriş yalnız login ilə
+ 
   if (!user) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
@@ -33,7 +33,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // admin yalnız 1 gmail
+  
   if (pathname.startsWith("/dashboard/admin")) {
     const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase();
     const userEmail = user.email?.toLowerCase();

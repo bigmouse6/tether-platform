@@ -15,7 +15,7 @@ export default function ManualAdjustForm({ mode }: { mode: Mode }) {
   const [amount, setAmount] = useState<string>("");
   const [note, setNote] = useState("");
 
-  // datetime-local üçün default: indi
+  
   const [dt, setDt] = useState<string>(() => {
     const d = new Date();
     d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
@@ -47,7 +47,7 @@ export default function ManualAdjustForm({ mode }: { mode: Mode }) {
     try {
       setLoading(true);
 
-      // datetime-local -> ISO
+      
       const iso = dt ? new Date(dt).toISOString() : new Date().toISOString();
 
       const { error } = await supabase.rpc("admin_manual_adjust", {

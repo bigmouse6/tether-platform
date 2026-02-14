@@ -26,8 +26,8 @@ function RightPromo() {
 
       {/* Content */}
       <div className="relative">
-        {/* Əgər istəsən burda 1–2 sətir text saxlaya bilərsən */}
-        {/* İstəmirsənsə, tam boş qala bilər */}
+        {/* Content */}
+        {/* Content */}
       </div>
 
     </section>

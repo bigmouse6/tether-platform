@@ -21,7 +21,7 @@ export default async function DashboardLayout({
   let isAdmin = false;
 
   if (user?.id) {
-    // Keep vip_level in the database (required for VIP logic)
+   
     const { data: profile } = await supabase
       .from("profiles")
       .select("vip_level")
@@ -30,7 +30,7 @@ export default async function DashboardLayout({
 
     vipLevel = Number(profile?.vip_level ?? 0);
 
-    // Admin check by email
+    
     isAdmin = !!userEmail && userEmail.toLowerCase() === adminEmail;
   }
 

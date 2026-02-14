@@ -92,15 +92,15 @@ export default async function VipPage() {
                  targetLevel={level}
                  currentVipLevel={vipLevel}
                  disabled={
-                 level <= vipLevel ||             // eyni/aşağı level olmasın
-                 level > vipLevel + 1 ||          // step-by-step qaydası
-                (level === vipLevel + 1 && balance < price) // balans çatmır
+                 level <= vipLevel ||             
+                 level > vipLevel + 1 ||          
+                (level === vipLevel + 1 && balance < price) 
               }
               />
 
               </div>
 
-              {/* Məlumat mesajları */}
+              {/* Information messages */}
               {level > vipLevel + 1 ? (
                 <div className="mt-3 text-xs text-white/50">
                   You must upgrade step-by-step.

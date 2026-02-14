@@ -12,23 +12,23 @@ export async function manualAdjustByEmail(params: {
 }) {
   const supabase = await createClient();
 
-  // Admin kimdir? (performed_by_email üçün)
+ 
   const {
     data: { user: adminUser },
     error: adminErr,
   } = await supabase.auth.getUser();
 
   if (adminErr || !adminUser?.email) {
-    throw new Error("Admin auth tapılmadı.");
+    throw new Error("");
   }
 
   const targetEmail = params.targetEmail.trim().toLowerCase();
   const amount = Number(params.amount);
 
-  if (!targetEmail) throw new Error("User email boş ola bilməz.");
-  if (!Number.isFinite(amount) || amount <= 0) throw new Error("Məbləğ düzgün deyil.");
+  if (!targetEmail) throw new Error("User email is required.");
+  if (!Number.isFinite(amount) || amount <= 0) throw new Error("The amount is incorrect.");
 
-  // 1) profiles-dan user_id tap
+ 
   const { data: profile, error: pErr } = await supabase
     .from("profiles")
     .select("user_id, email")
@@ -36,11 +36,11 @@ export async function manualAdjustByEmail(params: {
     .maybeSingle();
 
   if (pErr) throw new Error(pErr.message);
-  if (!profile?.user_id) throw new Error("Bu email ilə user tapılmadı.");
+  if (!profile?.user_id) throw new Error("No user found with this email.");
 
   const userId = profile.user_id as string;
 
-  // 2) wallet balance oxu
+  
   const { data: wallet, error: wErr } = await supabase
     .from("wallets")
     .select("balance")
@@ -54,17 +54,17 @@ export async function manualAdjustByEmail(params: {
   const newBalance = currentBalance + delta;
 
   if (newBalance < 0) {
-    throw new Error("Balans mənfi ola bilməz.");
+    throw new Error("The balance cannot be negative.");
   }
 
-  // 3) wallets update (yoxdursa da yaratsın)
+  
   const { error: upErr } = await supabase
     .from("wallets")
     .upsert({ user_id: userId, balance: newBalance }, { onConflict: "user_id" });
 
   if (upErr) throw new Error(upErr.message);
 
-  // 4) history: transactions insert
+  
   const type = params.mode === "deposit" ? "deposit" : "withdraw";
   const direction = params.mode === "deposit" ? "in" : "out";
 
@@ -72,7 +72,7 @@ export async function manualAdjustByEmail(params: {
     user_id: userId,
     counterparty_user_id: null,
     type,
-    amount: amount, // həmişə + yazırıq
+    amount: amount, 
     asset: "USDT",
     note: params.note ?? (params.mode === "deposit" ? "Manual deposit" : "Manual withdraw"),
     performed_by_email: adminUser.email,

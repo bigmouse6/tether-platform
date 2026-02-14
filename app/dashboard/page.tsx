@@ -26,7 +26,7 @@ async function fetchPrices(): Promise<Prices | null> {
       ...popular.map((c) => c.id),
     ].join(",");
 
-    // CoinGecko simple price (server-side)
+    
     const url =
       `https://api.coingecko.com/api/v3/simple/price` +
       `?ids=${encodeURIComponent(ids)}` +
@@ -54,14 +54,14 @@ export default async function DashboardPage() {
     return <div className="text-white/70">Not authenticated.</div>;
   }
 
-  // Wallet balance
+  
   const { data: wallet } = await supabase
     .from("wallets")
     .select("balance")
     .eq("user_id", user.id)
     .single();
 
-  // VIP level (profiles.vip_level is integer in sənin DB-də)
+ 
   const { data: profile } = await supabase
     .from("profiles")
     .select("vip_level")
@@ -73,7 +73,7 @@ export default async function DashboardPage() {
       ? `VIP-${profile.vip_level}`
       : null;
 
-  // This month deposit/withdraw totals
+  
   const startOfMonth = new Date();
   startOfMonth.setDate(1);
   startOfMonth.setHours(0, 0, 0, 0);

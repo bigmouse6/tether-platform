@@ -19,7 +19,7 @@ export default function WithdrawForm() {
 
     startTransition(async () => {
       const res = await submitWithdraw({
-        amount: Number(amount),        // ✅ BU SƏNDƏ YOX İDİ
+        amount: Number(amount),        
         address,
         keyPassword,
       });
@@ -30,7 +30,7 @@ export default function WithdrawForm() {
         setAmount("");
         setAddress("");
         setKeyPassword("");
-        router.refresh(); // ✅ server component datanı yenidən çəkəcək
+        router.refresh(); 
  }
 
     });

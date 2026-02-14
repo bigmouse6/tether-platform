@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/browser";
 
 type Props = {
-  targetLevel: number;        // məsələn 1,2,3...
-  currentVipLevel: number;    // səhifədən gələcək vipLevel
-  disabled?: boolean;         // sənin page.tsx hesablayır
+  targetLevel: number;        
+  currentVipLevel: number;    
+  disabled?: boolean;         
 };
 
 export default function VipUpgradeButton({
@@ -25,7 +25,7 @@ export default function VipUpgradeButton({
   const onUpgrade = async () => {
     setMsg(null);
 
-    // Step-by-step qaydası (VIP-1 -> VIP-2 -> VIP-3...)
+   
     if (targetLevel !== currentVipLevel + 1) {
       setMsg("You must upgrade step-by-step.");
       return;
@@ -47,7 +47,7 @@ export default function VipUpgradeButton({
       router.refresh();
 
 
-      // ✅ Sidebar + page yenilənsin
+      
       router.refresh();
     } catch (e: any) {
       setMsg(e?.message ?? "Error");

@@ -13,9 +13,32 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Tether Platform",
-  description: "Crypto platform UI",
+  title: {
+    default: "Tronix Platform",
+    template: "%s | Tronix",
+  },
+  description:
+    "Tronix is a secure USDT platform for deposits, withdrawals and internal transfers with VIP level protection.",
+
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "https://tether-platform-sigma.vercel.app"
+  ),
+
+  openGraph: {
+    title: "Tronix Platform",
+    description:
+      "Secure crypto platform for USDT transfers and VIP protected withdrawals.",
+    url: "/",
+    siteName: "Tronix",
+    type: "website",
+  },
+
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
+
 
 export default function RootLayout({
   children,
