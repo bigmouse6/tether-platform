@@ -2,7 +2,11 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
 export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({ request: { headers: request.headers } });
+  let response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
+  });
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -22,21 +26,42 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  const { data: { user } } = await supabase.auth.getUser();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   const pathname = request.nextUrl.pathname;
 
  
-  if (!user) {
+  const publicRoutes = [
+    "/",
+    "/login",
+    "/register",
+    "/privacy",
+    "/terms",
+    "/robots.txt",
+    "/sitemap.xml",
+    "/favicon.ico",
+  ];
+
+  const isPublicRoute = publicRoutes.some((route) =>
+    pathname.startsWith(route)
+  );
+
+  
+  if (!user && !isPublicRoute && pathname.startsWith("/dashboard")) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("redirectedFrom", pathname);
     return NextResponse.redirect(url);
   }
+   
 
-  
   if (pathname.startsWith("/dashboard/admin")) {
     const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase();
-    const userEmail = user.email?.toLowerCase();
+    const userEmail = user?.email?.toLowerCase();
+
     if (!adminEmail || userEmail !== adminEmail) {
       const url = request.nextUrl.clone();
       url.pathname = "/dashboard";
