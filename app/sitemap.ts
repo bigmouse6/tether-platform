@@ -1,9 +1,8 @@
 import type { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://tether-platform-sigma.vercel.app";
+  const siteUrl = "https://tronixwallet.com";
 
-  
   const routes = [
     "/",
     "/login",
@@ -19,3 +18,4 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: path === "/" ? 1 : 0.6,
   }));
 }
+

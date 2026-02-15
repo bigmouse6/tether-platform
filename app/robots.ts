@@ -1,12 +1,12 @@
-import type { MetadataRoute } from "next";
+import { MetadataRoute } from 'next'
 
 export default function robots(): MetadataRoute.Robots {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://tether-platform-sigma.vercel.app";
-
   return {
-    rules: [
-      { userAgent: "*", allow: "/" },
-    ],
-    sitemap: `${siteUrl}/sitemap.xml`,
-  };
+    rules: {
+      userAgent: '*',
+      allow: '/',
+    },
+    sitemap: 'https://tronixwallet.com/sitemap.xml',
+  }
 }
+
