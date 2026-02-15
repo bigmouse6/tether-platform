@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     "Tronix is a secure USDT platform for deposits, withdrawals and internal transfers with VIP level protection.",
 
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || "https://tether-platform-sigma.vercel.app"
+    process.env.NEXT_PUBLIC_SITE_URL || "https://tronixwallet.com"
   ),
 
   openGraph: {

@@ -3,7 +3,7 @@
 A USDT (TRC20) based platform with balance management, deposits, and internal transfers.
 
 ## 🚀 Live Demo
-https://tether-platform-sigma.vercel.app
+https://tronixwallet.com
 
 ---
 
