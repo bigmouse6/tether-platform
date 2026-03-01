@@ -3,8 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
 export async function middleware(request: NextRequest) {
-  // Default cavab (request header-ları saxlanılsın deyə)
-  const response = NextResponse.next({
+  let response = NextResponse.next({
     request: { headers: request.headers },
   });
 
@@ -26,14 +25,11 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+  const { data: { user } } = await supabase.auth.getUser();
   const pathname = request.nextUrl.pathname;
 
   // Dashboard-a giriş üçün login tələb et
-  if (!user) {
+  if (!user && pathname.startsWith("/dashboard")) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("redirectedFrom", pathname);
@@ -43,7 +39,7 @@ export async function middleware(request: NextRequest) {
   // Admin route qorunması
   if (pathname.startsWith("/dashboard/admin")) {
     const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase();
-    const userEmail = user.email?.toLowerCase();
+    const userEmail = user?.email?.toLowerCase();
 
     if (!adminEmail || userEmail !== adminEmail) {
       const url = request.nextUrl.clone();
@@ -56,5 +52,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*"],
+  matcher: ["/dashboard/:path*", "/dashboard/admin/:path*"],
 };
