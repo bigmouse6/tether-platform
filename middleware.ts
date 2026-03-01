@@ -1,9 +1,8 @@
-// middleware.ts
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
 export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({
+  const response = NextResponse.next({
     request: { headers: request.headers },
   });
 
@@ -28,23 +27,24 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   const pathname = request.nextUrl.pathname;
 
-  // Dashboard-a giriş üçün login tələb et
-  if (!user && pathname.startsWith("/dashboard")) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    url.searchParams.set("redirectedFrom", pathname);
-    return NextResponse.redirect(url);
+  
+  if (user && pathname === "/login") {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  // Admin route qorunması
-  if (pathname.startsWith("/dashboard/admin")) {
+  
+  if (!user && pathname.startsWith("/dashboard")) {
+    
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  
+  if (user && pathname.startsWith("/dashboard/admin")) {
     const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase();
-    const userEmail = user?.email?.toLowerCase();
+    const userEmail = user.email?.toLowerCase();
 
     if (!adminEmail || userEmail !== adminEmail) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/dashboard";
-      return NextResponse.redirect(url);
+      return NextResponse.redirect(new URL("/dashboard", request.url));
     }
   }
 
@@ -52,5 +52,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/dashboard/admin/:path*"],
+  matcher: ["/dashboard/:path*", "/login"],
 };
