@@ -37,17 +37,17 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-gray-50">
+    <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-gray-900">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-lg">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">Secure Access</h1>
+          <h1 className="text-3xl text-gray-900">Secure access</h1>
           <p className="text-gray-600 mt-2">Sign in to your account to continue</p>
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleLogin}>
           <div className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="email" className="block text-sm text-gray-700">
                 Email
               </label>
               <input
@@ -63,7 +63,7 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="password" className="block text-sm text-gray-700">
                 Password
               </label>
               <input
@@ -96,7 +96,7 @@ export default function LoginPage() {
           </div>
 
           <div className="text-center text-sm">
-            <Link href="/register" className="text-blue-600 hover:text-blue-800 font-medium">
+            <Link href="/register" className="text-blue-600 hover:text-blue-800">
               Create account
             </Link>
           </div>
