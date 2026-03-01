@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: "your-google-verification-code", // Google Search Console təsdiqləmə kodu
+    google: "your-google-verification-code", 
   },
 };
 
