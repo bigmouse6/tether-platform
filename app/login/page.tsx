@@ -9,98 +9,97 @@ export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [msg, setMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
-    setError(null);
+    setMsg(null);
 
-    try {
-      const supabase = createClient();
-      
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+    const supabase = createClient(); // Hər dəfə yenə yaradılır
+    
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-      if (error) throw error;
+    setLoading(false);
 
-      router.push("/dashboard");
-      router.refresh();
-    } catch (error: any) {
-      setError(error.message);
-    } finally {
-      setLoading(false);
+    if (error) {
+      setMsg(error.message);
+      return;
     }
-  };
+
+    router.push("/dashboard");
+    router.refresh();
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center p-4">
-      <div className="max-w-md w-full space-y-8 bg-gray-800 p-8 rounded-2xl shadow-2xl border border-gray-700">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold text-white mb-2">Secure access</h2>
-          <p className="text-gray-400">Sign in to your account to continue</p>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#05070d] via-[#070a12] to-[#020409] px-4">
+      <div className="w-full max-w-md rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl p-8">
+        <div className="mb-6 text-center">
+          <span className="inline-block mb-3 rounded-full border border-cyan-400/30 px-3 py-1 text-xs text-cyan-300">
+            Secure access
+          </span>
+          <h1 className="text-3xl font-bold tracking-tight text-white">
+            Login
+          </h1>
+          <p className="mt-2 text-sm text-slate-400">
+            Sign in to your account to continue
+          </p>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="email" className="text-sm font-medium text-gray-300 block mb-2">
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400"
-                placeholder="you@example.com"
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="text-sm font-medium text-gray-300 block mb-2">
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400"
-                placeholder="••••••••"
-                required
-              />
-            </div>
+        <form onSubmit={onSubmit} className="space-y-4">
+          <div>
+            <label className="text-sm text-slate-300">Email</label>
+            <input
+              type="email"
+              required
+              className="mt-1 w-full rounded-lg border border-white/10 bg-black/40 px-4 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </div>
 
-          {error && (
-            <div className="bg-red-500/10 border border-red-500 text-red-500 px-4 py-3 rounded-lg text-sm">
-              {error}
+          <div>
+            <label className="text-sm text-slate-300">Password</label>
+            <input
+              type="password"
+              required
+              minLength={6}
+              className="mt-1 w-full rounded-lg border border-white/10 bg-black/40 px-4 py-2 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+
+          {msg && (
+            <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-400">
+              {msg}
             </div>
           )}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="mt-2 w-full rounded-lg bg-cyan-500 py-2.5 font-semibold text-black hover:bg-cyan-400 transition disabled:opacity-50"
           >
-            {loading ? "Loading..." : "Login"}
+            {loading ? "Signing in..." : "Login"}
           </button>
-
-          <div className="text-center">
-            <Link href="/register" className="text-blue-400 hover:text-blue-300 text-sm">
-              Create account
-            </Link>
-          </div>
-
-          <p className="text-xs text-center text-gray-500">
-            By continuing you agree to platform rules.
-          </p>
         </form>
+
+        <div className="mt-6 flex justify-between text-sm text-slate-400">
+          <Link href="/register" className="hover:text-cyan-400">
+            Create account
+          </Link>
+        </div>
+
+        <p className="mt-6 text-center text-xs text-slate-500">
+          By continuing you agree to platform rules.
+        </p>
       </div>
     </div>
   );
