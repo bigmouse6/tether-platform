@@ -1,22 +1,23 @@
 import { createClient } from "@/lib/supabase/server";
 import SupportForm from "./support-form";
+import { cookies } from "next/headers";
 
 export default async function SupportPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const userId = user?.id;
   const userEmail = user?.email ?? "";
 
-  
-  await supabase.rpc('set_session_id', { session_id: 'temp' }); 
-
-  
-  const { data: messages } = await supabase
+  const { data: allMessages } = await supabase
     .from("support_messages")
     .select("id, created_at, message, status, admin_reply, admin_replied_at, session_id")
     .order("id", { ascending: false })
-    .limit(50);
+    .limit(100);
+
+  const cookieStore = await cookies();  
+  const sessionId = cookieStore.get("support_session_id")?.value || "";
+
+  const messages = allMessages?.filter(m => m.session_id === sessionId) || [];
 
   return (
     <div className="max-w-3xl">
@@ -28,19 +29,16 @@ export default async function SupportPage() {
       </div>
 
       <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-5">
-        <div className="text-sm text-white/70 mb-3">Your messages</div>
+        <div className="text-sm text-white/70 mb-3">
+          Your messages {sessionId ? `(Session: ${sessionId.substring(0, 8)}...)` : ""}
+        </div>
 
         <div className="space-y-3">
-          {(messages ?? []).map((m) => (
+          {messages.map((m) => (
             <div key={m.id} className="rounded-xl border border-white/10 bg-black/20 p-4">
               <div className="text-xs text-white/50">
                 {new Date(m.created_at).toLocaleString()} · {m.status ?? "open"}
-                {/* Test üçün session ID göstər */}
-                <span className="ml-2 text-cyan-400">
-                  [Session: {m.session_id?.substring(0,8)}...]
-                </span>
               </div>
-
               <div className="mt-2 text-sm text-white">{m.message}</div>
 
               {m.admin_reply && (
@@ -54,7 +52,7 @@ export default async function SupportPage() {
             </div>
           ))}
 
-          {!messages?.length && (
+          {!messages.length && (
             <div className="text-sm text-white/50">No messages yet.</div>
           )}
         </div>
