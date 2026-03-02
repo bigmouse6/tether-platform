@@ -4,16 +4,18 @@ export function getSessionId(): string {
   
   
   if (!sessionId) {
-    sessionId = crypto.randomUUID(); 
+    sessionId = crypto.randomUUID();
     localStorage.setItem('support_session_id', sessionId);
+    console.log('Yeni session yaradıldı:', sessionId); 
+  } else {
+    console.log('Mövcud session:', sessionId); 
   }
   
   return sessionId;
 }
 
 
-export function regenerateSessionId(): string {
-  const sessionId = crypto.randomUUID();
-  localStorage.setItem('support_session_id', sessionId);
-  return sessionId;
+export function clearSession() {
+  localStorage.removeItem('support_session_id');
+  console.log('Session silindi');
 }
