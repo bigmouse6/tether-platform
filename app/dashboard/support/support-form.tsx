@@ -1,84 +1,83 @@
 "use client";
 
-import { useState, useEffect } from "react"; 
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/browser";
-import { getSessionId, clearSession } from "@/utils/session"; 
+import { createClient } from "@/lib/supabase/browser";  
+import { getSessionId } from "@/utils/session";
 
 export default function SupportForm({ userEmail }: { userEmail: string }) {
+  const router = useRouter();
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
-  const [currentSession, setCurrentSession] = useState<string>("");
-  const router = useRouter();
+  const [currentSession, setCurrentSession] = useState("");
 
-  
   useEffect(() => {
-    setCurrentSession(getSessionId());
+    const sessionId = getSessionId();
+    setCurrentSession(sessionId);
+    document.cookie = `support_session_id=${sessionId}; path=/; max-age=86400`;
   }, []);
 
-  async function onSend(e: React.FormEvent) {
+  const handleClearSession = () => {
+    localStorage.removeItem("support_session_id");
+    document.cookie = "support_session_id=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    setCurrentSession(getSessionId());
+    window.location.reload();
+  };
+
+  const onSend = async (e: React.FormEvent) => {
     e.preventDefault();
     setMsg(null);
 
     const text = message.trim();
     if (!text) return;
 
-    try {
-      setLoading(true);
-      const supabase = createClient();
+    setLoading(true);
 
+    try {
+      const supabase = createClient();  
       const { data: userData } = await supabase.auth.getUser();
       const userId = userData.user?.id;
 
       if (!userId) {
         setMsg("Not authenticated.");
+        setLoading(false);
         return;
       }
 
-      
       const sessionId = getSessionId();
-      console.log('Göndərilən session ID:', sessionId); 
+
       const { error } = await supabase.from("support_messages").insert({
         user_id: userId,
         user_email: userEmail,
         message: text,
         status: "open",
-        session_id: sessionId
+        session_id: sessionId,
       });
 
       if (error) {
-        console.error('Xəta:', error); 
         setMsg(error.message);
-        return;
+      } else {
+        setMessage("");
+        setMsg("Sent!");
+        router.refresh();
       }
-
-      setMessage("");
-      setMsg("Sent!");
-      router.refresh();
-    } catch (error) {
-      console.error('Kod xətası:', error); 
+    } catch {
       setMsg("An error occurred");
     } finally {
       setLoading(false);
     }
-  }
-
-  
-  function handleClearSession() {
-    clearSession();
-    setCurrentSession(getSessionId());
-    window.location.reload();
-  }
+  };
 
   return (
-    <div>
-      {/* Test üçün session göstəricisi */}
-      <div className="mb-2 text-xs text-cyan-400">
-        Session: {currentSession?.substring(0, 8)}...
+    <div className="space-y-4">
+      <div className="mb-2 flex items-center gap-2 text-xs">
+        <span className="text-cyan-400">
+          Session: {currentSession ? currentSession.substring(0, 8) + "..." : "Loading..."}
+        </span>
         <button 
-          onClick={handleClearSession}
-          className="ml-2 text-red-400 hover:text-red-300"
+          onClick={handleClearSession} 
+          className="text-red-400 hover:text-red-300 transition-colors" 
           type="button"
         >
           [clear]
@@ -93,12 +92,19 @@ export default function SupportForm({ userEmail }: { userEmail: string }) {
           rows={4}
           className="w-full rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-cyan-500"
           placeholder="Type here..."
+          disabled={loading}
         />
-        {msg && <div className="text-xs text-white/70">{msg}</div>}
+        
+        {msg && (
+          <div className={`text-xs ${msg === "Sent!" ? "text-green-400" : "text-white/70"}`}>
+            {msg}
+          </div>
+        )}
+        
         <button
           type="submit"
-          disabled={loading}
-          className="rounded-xl bg-cyan-500 px-4 py-2 text-sm font-semibold text-black disabled:opacity-60"
+          disabled={loading || !message.trim()}
+          className="rounded-xl bg-cyan-500 px-4 py-2 text-sm font-semibold text-black hover:bg-cyan-400 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {loading ? "Sending..." : "Send"}
         </button>
