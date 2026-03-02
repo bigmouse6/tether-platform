@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/browser";  
+import { createClient } from "@/lib/supabase/browser";
 import { getSessionId } from "@/utils/session";
 
 export default function SupportForm({ userEmail }: { userEmail: string }) {
@@ -35,7 +35,7 @@ export default function SupportForm({ userEmail }: { userEmail: string }) {
     setLoading(true);
 
     try {
-      const supabase = createClient();  
+      const supabase = createClient();
       const { data: userData } = await supabase.auth.getUser();
       const userId = userData.user?.id;
 
@@ -71,19 +71,8 @@ export default function SupportForm({ userEmail }: { userEmail: string }) {
 
   return (
     <div className="space-y-4">
-      <div className="mb-2 flex items-center gap-2 text-xs">
-        <span className="text-cyan-400">
-          Session: {currentSession ? currentSession.substring(0, 8) + "..." : "Loading..."}
-        </span>
-        <button 
-          onClick={handleClearSession} 
-          className="text-red-400 hover:text-red-300 transition-colors" 
-          type="button"
-        >
-          [clear]
-        </button>
-      </div>
-
+      {/* Session göstəricisi tamamilə silindi - funksiya işləyir, amma görünmür */}
+      
       <form onSubmit={onSend} className="space-y-3">
         <div className="text-sm text-white/70">Write your message</div>
         <textarea

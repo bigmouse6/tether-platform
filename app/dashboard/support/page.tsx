@@ -1,9 +1,9 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";  
 import SupportForm from "./support-form";
 import { cookies } from "next/headers";
 
 export default async function SupportPage() {
-  const supabase = await createClient();
+  const supabase = await createClient();  
   const { data: { user } } = await supabase.auth.getUser();
 
   const userEmail = user?.email ?? "";
@@ -14,7 +14,7 @@ export default async function SupportPage() {
     .order("id", { ascending: false })
     .limit(100);
 
-  const cookieStore = await cookies();  
+  const cookieStore = await cookies();
   const sessionId = cookieStore.get("support_session_id")?.value || "";
 
   const messages = allMessages?.filter(m => m.session_id === sessionId) || [];
@@ -30,7 +30,7 @@ export default async function SupportPage() {
 
       <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-5">
         <div className="text-sm text-white/70 mb-3">
-          Your messages {sessionId ? `(Session: ${sessionId.substring(0, 8)}...)` : ""}
+          Your messages
         </div>
 
         <div className="space-y-3">
