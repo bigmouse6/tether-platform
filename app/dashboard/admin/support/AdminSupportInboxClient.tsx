@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { createClient } from "@/lib/supabase/browser";
+import { createClient } from "@/lib/supabase/browser";  // DÜZƏLDİ: subabase -> supabase
 
 type Msg = {
   id: number;
@@ -11,6 +11,7 @@ type Msg = {
   status: string | null;
   admin_reply: string | null;
   admin_replied_at: string | null;
+  session_id?: string;  // Əlavə olaraq session_id də gələ bilər
 };
 
 export default function AdminSupportInboxClient({
@@ -33,11 +34,11 @@ export default function AdminSupportInboxClient({
   async function refresh() {
     const { data, error } = await supabase
       .from("support_messages")
-      .select("id, created_at, user_email, message, status, admin_reply, admin_replied_at")
+      .select("id, created_at, user_email, message, status, admin_reply, admin_replied_at, session_id")
       .order("id", { ascending: false })
       .limit(200);
 
-    if (!error && data) setMessages(data as Msg[]);
+    if (!error && data) setMessages(data as Msg[]);  // DÜZƏLDİ: error && data -> !error && data
     if (error) alert(error.message);
   }
 
@@ -78,8 +79,8 @@ export default function AdminSupportInboxClient({
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Search by email..."
-          className="w-full sm:w-80 rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-sm text-white placeholder:text-white/40"
+          placeholder="search by email..."
+          className="w-full sm:w-80 rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-sm text-white placeholder:text-white/50"
         />
       </div>
 
@@ -87,37 +88,37 @@ export default function AdminSupportInboxClient({
         {filtered.map((m) => (
           <div key={m.id} className="rounded-2xl border border-white/10 bg-white/5 p-5">
             <div className="text-xs text-white/50">
-              {new Date(m.created_at).toLocaleString()} • {m.status ?? "open"}
+              {new Date(m.created_at).toLocaleString()} · {m.status ?? "open"}
+              {m.session_id && <span className="ml-2 text-cyan-400">[Session: {m.session_id.slice(0,8)}...]</span>}
             </div>
-
             <div className="mt-1 text-sm text-white/70">{m.user_email ?? "unknown"}</div>
             <div className="mt-3 text-sm text-white">{m.message}</div>
 
-            {m.admin_reply ? (
+            {m.admin_reply && (
               <div className="mt-4 rounded-xl border border-white/10 bg-white/5 p-3">
                 <div className="text-xs text-white/50">
-                  Admin reply{m.admin_replied_at ? ` • ${new Date(m.admin_replied_at).toLocaleString()}` : ""}
+                  Admin reply {m.admin_replied_at ? `· ${new Date(m.admin_replied_at).toLocaleString()}` : ""}
                 </div>
                 <div className="mt-2 text-sm text-white">{m.admin_reply}</div>
               </div>
-            ) : (
-              <div className="mt-4 space-y-2">
-                <textarea
-                  value={replyById[m.id] ?? ""}
-                  onChange={(e) => setReplyById((p) => ({ ...p, [m.id]: e.target.value }))}
-                  rows={3}
-                  placeholder="Write a reply..."
-                  className="w-full rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-sm text-white placeholder:text-white/40"
-                />
-                <button
-                  onClick={() => sendReply(m.id)}
-                  disabled={savingId === m.id}
-                  className="rounded-xl bg-cyan-500 px-4 py-2 text-sm font-semibold text-black disabled:opacity-60"
-                >
-                  {savingId === m.id ? "Sending..." : "Send reply"}
-                </button>
-              </div>
             )}
+
+            <div className="mt-4 space-y-2">
+              <textarea
+                value={replyById[m.id] ?? ""}
+                onChange={(e) => setReplyById((p) => ({ ...p, [m.id]: e.target.value }))}
+                rows={3}
+                placeholder="write a reply..."
+                className="w-full rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-sm text-white placeholder:text-white/50"
+              />
+              <button
+                onClick={() => sendReply(m.id)}
+                disabled={savingId === m.id}
+                className="rounded-xl bg-cyan-500 px-4 py-2 text-sm font-semibold text-black hover:bg-cyan-400 disabled:opacity-50"
+              >
+                {savingId === m.id ? "Sending..." : "Send reply"}
+              </button>
+            </div>
           </div>
         ))}
 
