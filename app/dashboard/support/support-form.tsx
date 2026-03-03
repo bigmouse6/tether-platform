@@ -3,41 +3,25 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/browser";
-
-
-function generateSessionId(): string {
-  return Date.now().toString(36) + Math.random().toString(36).substring(2);
-}
+import { getSessionId } from "@/utils/session";
 
 export default function SupportForm({ userEmail }: { userEmail: string }) {
   const router = useRouter();
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [currentSession, setCurrentSession] = useState("");
 
   useEffect(() => {
-    
-    const storageKey = `support_session_${userEmail}`;
-    let sessionId = localStorage.getItem(storageKey);
-    
-    if (!sessionId) {
-      sessionId = generateSessionId();
-      localStorage.setItem(storageKey, sessionId);
-      console.log("Yeni session yaradildi:", userEmail, sessionId);
-    } else {
-      console.log("Mövcud session tapildi:", userEmail, sessionId);
-    }
-  }, [userEmail]);
+    const sessionId = getSessionId();
+    setCurrentSession(sessionId);
+    document.cookie = `support_session_id=${sessionId}; path=/; max-age=86400`;
+  }, []);
 
   const handleClearSession = () => {
-    const storageKey = `support_session_${userEmail}`;
-    localStorage.removeItem(storageKey);
-    
-    // Yeni session yarat
-    const newSessionId = generateSessionId();
-    localStorage.setItem(storageKey, newSessionId);
-    
-    console.log("Session temizlendi, yeni:", userEmail, newSessionId);
+    localStorage.removeItem("support_session_id");
+    document.cookie = "support_session_id=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    setCurrentSession(getSessionId());
     window.location.reload();
   };
 
@@ -61,17 +45,7 @@ export default function SupportForm({ userEmail }: { userEmail: string }) {
         return;
       }
 
-      
-      const storageKey = `support_session_${userEmail}`;
-      let sessionId = localStorage.getItem(storageKey);
-      
-      
-      if (!sessionId) {
-        sessionId = generateSessionId();
-        localStorage.setItem(storageKey, sessionId);
-      }
-
-      console.log("Gonderilir:", { userEmail, sessionId });
+      const sessionId = getSessionId();
 
       const { error } = await supabase.from("support_messages").insert({
         user_id: userId,
@@ -82,15 +56,13 @@ export default function SupportForm({ userEmail }: { userEmail: string }) {
       });
 
       if (error) {
-        console.error("Xeta:", error);
         setMsg(error.message);
       } else {
         setMessage("");
         setMsg("Sent!");
         router.refresh();
       }
-    } catch (err) {
-      console.error("Xeta:", err);
+    } catch {
       setMsg("An error occurred");
     } finally {
       setLoading(false);
@@ -99,17 +71,8 @@ export default function SupportForm({ userEmail }: { userEmail: string }) {
 
   return (
     <div className="space-y-4">
-      {/* Test üçün session ID-ni göstərək (sonra silərsən) */}
-      <div className="text-xs text-cyan-400">
-        Session: {userEmail} - {localStorage.getItem(`support_session_${userEmail}`)?.substring(0, 8)}...
-        <button 
-          onClick={handleClearSession}
-          className="ml-2 text-red-400 hover:text-red-300"
-        >
-          [clear]
-        </button>
-      </div>
-
+      {/* The Session indicator is completely removed - the function works, but is not visible*/}
+      
       <form onSubmit={onSend} className="space-y-3">
         <div className="text-sm text-white/70">Write your message</div>
         <textarea
