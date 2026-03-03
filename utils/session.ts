@@ -6,9 +6,9 @@ export function getSessionId(): string {
   if (!sessionId) {
     sessionId = crypto.randomUUID();
     localStorage.setItem('support_session_id', sessionId);
-    console.log('Yeni session yaradıldı:', sessionId); 
+    console.log('A new session has been created:', sessionId); 
   } else {
-    console.log('Mövcud session:', sessionId); 
+    console.log('Current session:', sessionId); 
   }
   
   return sessionId;
@@ -17,5 +17,5 @@ export function getSessionId(): string {
 
 export function clearSession() {
   localStorage.removeItem('support_session_id');
-  console.log('Session silindi');
+  console.log('Session deleted');
 }

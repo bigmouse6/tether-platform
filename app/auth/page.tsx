@@ -82,7 +82,7 @@ export default function AuthPage() {
        password: signPassword,
        options: {
        data: {
-       key_password: keyPassword, // DB trigger bunu götürüb hash edəcək
+       key_password: keyPassword, 
     },
   },
 });

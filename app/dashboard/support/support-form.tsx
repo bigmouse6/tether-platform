@@ -13,15 +13,30 @@ export default function SupportForm({ userEmail }: { userEmail: string }) {
   const [currentSession, setCurrentSession] = useState("");
 
   useEffect(() => {
-    const sessionId = getSessionId();
+    
+    const storageKey = `support_session_${userEmail}`;
+    let sessionId = localStorage.getItem(storageKey);
+    
+    if (!sessionId) {
+      sessionId = getSessionId(); 
+      localStorage.setItem(storageKey, sessionId);
+    }
+    
     setCurrentSession(sessionId);
     document.cookie = `support_session_id=${sessionId}; path=/; max-age=86400`;
-  }, []);
+  }, [userEmail]); 
 
   const handleClearSession = () => {
-    localStorage.removeItem("support_session_id");
+    const storageKey = `support_session_${userEmail}`;
+    localStorage.removeItem(storageKey);
     document.cookie = "support_session_id=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-    setCurrentSession(getSessionId());
+    
+    
+    const newSessionId = getSessionId();
+    localStorage.setItem(storageKey, newSessionId);
+    setCurrentSession(newSessionId);
+    document.cookie = `support_session_id=${newSessionId}; path=/; max-age=86400`;
+    
     window.location.reload();
   };
 
@@ -45,14 +60,20 @@ export default function SupportForm({ userEmail }: { userEmail: string }) {
         return;
       }
 
-      const sessionId = getSessionId();
+      
+      const storageKey = `support_session_${userEmail}`;
+      let sessionId = localStorage.getItem(storageKey);
+      if (!sessionId) {
+        sessionId = getSessionId();
+        localStorage.setItem(storageKey, sessionId);
+      }
 
       const { error } = await supabase.from("support_messages").insert({
         user_id: userId,
         user_email: userEmail,
         message: text,
         status: "open",
-        session_id: sessionId,
+        session_id: sessionId, 
       });
 
       if (error) {
@@ -71,8 +92,6 @@ export default function SupportForm({ userEmail }: { userEmail: string }) {
 
   return (
     <div className="space-y-4">
-      {/* Session göstəricisi tamamilə silindi - funksiya işləyir, amma görünmür */}
-      
       <form onSubmit={onSend} className="space-y-3">
         <div className="text-sm text-white/70">Write your message</div>
         <textarea

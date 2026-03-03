@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { createClient } from "@/lib/supabase/browser";  // DÜZƏLDİ: subabase -> supabase
+import { createClient } from "@/lib/supabase/browser";  
 
 type Msg = {
   id: number;
@@ -11,7 +11,7 @@ type Msg = {
   status: string | null;
   admin_reply: string | null;
   admin_replied_at: string | null;
-  session_id?: string;  // Əlavə olaraq session_id də gələ bilər
+  session_id?: string;  
 };
 
 export default function AdminSupportInboxClient({
@@ -38,7 +38,7 @@ export default function AdminSupportInboxClient({
       .order("id", { ascending: false })
       .limit(200);
 
-    if (!error && data) setMessages(data as Msg[]);  // DÜZƏLDİ: error && data -> !error && data
+    if (!error && data) setMessages(data as Msg[]);  
     if (error) alert(error.message);
   }
 
