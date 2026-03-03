@@ -3,14 +3,17 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/browser";
-import { getSessionId } from "@/utils/session";
+
+
+function generateSessionId(): string {
+  return Date.now().toString(36) + Math.random().toString(36).substring(2);
+}
 
 export default function SupportForm({ userEmail }: { userEmail: string }) {
   const router = useRouter();
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
-  const [currentSession, setCurrentSession] = useState("");
 
   useEffect(() => {
     
@@ -18,25 +21,23 @@ export default function SupportForm({ userEmail }: { userEmail: string }) {
     let sessionId = localStorage.getItem(storageKey);
     
     if (!sessionId) {
-      sessionId = getSessionId(); 
+      sessionId = generateSessionId();
       localStorage.setItem(storageKey, sessionId);
+      console.log("Yeni session yaradildi:", userEmail, sessionId);
+    } else {
+      console.log("Mövcud session tapildi:", userEmail, sessionId);
     }
-    
-    setCurrentSession(sessionId);
-    document.cookie = `support_session_id=${sessionId}; path=/; max-age=86400`;
-  }, [userEmail]); 
+  }, [userEmail]);
 
   const handleClearSession = () => {
     const storageKey = `support_session_${userEmail}`;
     localStorage.removeItem(storageKey);
-    document.cookie = "support_session_id=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     
-    
-    const newSessionId = getSessionId();
+    // Yeni session yarat
+    const newSessionId = generateSessionId();
     localStorage.setItem(storageKey, newSessionId);
-    setCurrentSession(newSessionId);
-    document.cookie = `support_session_id=${newSessionId}; path=/; max-age=86400`;
     
+    console.log("Session temizlendi, yeni:", userEmail, newSessionId);
     window.location.reload();
   };
 
@@ -63,27 +64,33 @@ export default function SupportForm({ userEmail }: { userEmail: string }) {
       
       const storageKey = `support_session_${userEmail}`;
       let sessionId = localStorage.getItem(storageKey);
+      
+      
       if (!sessionId) {
-        sessionId = getSessionId();
+        sessionId = generateSessionId();
         localStorage.setItem(storageKey, sessionId);
       }
+
+      console.log("Gonderilir:", { userEmail, sessionId });
 
       const { error } = await supabase.from("support_messages").insert({
         user_id: userId,
         user_email: userEmail,
         message: text,
         status: "open",
-        session_id: sessionId, 
+        session_id: sessionId,
       });
 
       if (error) {
+        console.error("Xeta:", error);
         setMsg(error.message);
       } else {
         setMessage("");
         setMsg("Sent!");
         router.refresh();
       }
-    } catch {
+    } catch (err) {
+      console.error("Xeta:", err);
       setMsg("An error occurred");
     } finally {
       setLoading(false);
@@ -92,6 +99,17 @@ export default function SupportForm({ userEmail }: { userEmail: string }) {
 
   return (
     <div className="space-y-4">
+      {/* Test üçün session ID-ni göstərək (sonra silərsən) */}
+      <div className="text-xs text-cyan-400">
+        Session: {userEmail} - {localStorage.getItem(`support_session_${userEmail}`)?.substring(0, 8)}...
+        <button 
+          onClick={handleClearSession}
+          className="ml-2 text-red-400 hover:text-red-300"
+        >
+          [clear]
+        </button>
+      </div>
+
       <form onSubmit={onSend} className="space-y-3">
         <div className="text-sm text-white/70">Write your message</div>
         <textarea
